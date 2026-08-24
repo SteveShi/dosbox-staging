@@ -238,26 +238,12 @@ DirInformation* open_directory(const char* dirname) {
 
 bool read_directory_first(DirInformation* dirp, char* entry_name, bool& is_directory) {
 	if (!dirp) return false;
-
-	wchar_t wide_path[sizeof(dirp->base_path)] = {};
-	if (!windows_utf8_to_utf16(dirp->base_path, wide_path)) {
-		return false;
-	}
-
-	dirp->handle = FindFirstFileW(wide_path, &dirp->search_data);
+	dirp->handle = FindFirstFile(dirp->base_path, &dirp->search_data);
 	if (INVALID_HANDLE_VALUE == dirp->handle) {
 		return false;
 	}
 
-	// Edge case: This does not correctly handle filenames on the host that are invaid UTF-16.
-	// Windows does not enforce UTF-16 and can have filenames containing unpaired surrogates.
-	// The below function uses WideCharToMultiByte which replaces invalid code-points with the replacement character U+FFFD
-	// In order to properly handle this, we would need to write our own convertion to WTF-8 which can encode this.
-	// https://wtf-8.codeberg.page/
-	// Probably this is good enough for our use-case though. Such filenames would not display correctly in DOS anyway.
-	if (!windows_utf16_to_utf8(dirp->search_data.cFileName, entry_name, (MAX_PATH<CROSS_LEN)?MAX_PATH:CROSS_LEN)) {
-		return false;
-	}
+	safe_strncpy(entry_name,dirp->search_data.cFileName,(MAX_PATH<CROSS_LEN)?MAX_PATH:CROSS_LEN);
 
 	if (dirp->search_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) is_directory = true;
 	else is_directory = false;
@@ -267,12 +253,10 @@ bool read_directory_first(DirInformation* dirp, char* entry_name, bool& is_direc
 
 bool read_directory_next(DirInformation* dirp, char* entry_name, bool& is_directory) {
 	if (!dirp) return false;
-	int result = FindNextFileW(dirp->handle, &dirp->search_data);
+	int result = FindNextFile(dirp->handle, &dirp->search_data);
 	if (result==0) return false;
 
-	if (!windows_utf16_to_utf8(dirp->search_data.cFileName, entry_name, (MAX_PATH<CROSS_LEN)?MAX_PATH:CROSS_LEN)) {
-		return false;
-	}
+	safe_strncpy(entry_name,dirp->search_data.cFileName,(MAX_PATH<CROSS_LEN)?MAX_PATH:CROSS_LEN);
 
 	if (dirp->search_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) is_directory = true;
 	else is_directory = false;
