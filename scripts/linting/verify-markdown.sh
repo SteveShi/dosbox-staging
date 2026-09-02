@@ -22,7 +22,8 @@ list_markdown_files () {
 	  ':!:src/libs/*.md' \
 	  ':!:src/hardware/video/reelmagic/docs/*.md' \
 	  ':!:resources/*.md' \
-	  ':!:resources/translations/*.md'
+	  ':!:resources/translations/*.md' \
+	  ':!:subprojects/**'
 }
 
 main () {
