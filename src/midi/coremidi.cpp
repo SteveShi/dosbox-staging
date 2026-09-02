@@ -10,7 +10,10 @@
 
 #include "dos/programs.h"
 #include "utils/string_utils.h"
+
+#if defined(BOXER) || defined(BOXER_DEBUG)
 #include "BXCoalfaceAudio.h"
+#endif
 
 MidiDeviceCoreMidi::MidiDeviceCoreMidi(const char* conf)
         : MidiDevice(),
@@ -19,7 +22,9 @@ MidiDeviceCoreMidi::MidiDeviceCoreMidi(const char* conf)
           m_endpoint(0),
           m_pCurPacket(nullptr)
 {
+#if defined(BOXER) || defined(BOXER_DEBUG)
 	boxer_suggestMIDIHandler("coremidi", conf ? conf : "");
+#endif
 
 	// Get the MIDIEndPoint
 	m_endpoint = 0;
@@ -110,7 +115,9 @@ MidiDeviceCoreMidi::~MidiDeviceCoreMidi()
 
 void MidiDeviceCoreMidi::SendMidiMessage(const MidiMessage& msg)
 {
+#if defined(BOXER) || defined(BOXER_DEBUG)
 	boxer_sendMIDIMessage(const_cast<uint8_t*>(msg.data.data()));
+#endif
 
 	if (m_port && m_endpoint) {
 		// Acquire a MIDIPacketList
@@ -136,7 +143,9 @@ void MidiDeviceCoreMidi::SendMidiMessage(const MidiMessage& msg)
 
 void MidiDeviceCoreMidi::SendSysExMessage(uint8_t* sysex, size_t len)
 {
+#if defined(BOXER) || defined(BOXER_DEBUG)
 	boxer_sendMIDISysex(sysex, len);
+#endif
 
 	if (m_port && m_endpoint) {
 		// Acquire a MIDIPacketList
