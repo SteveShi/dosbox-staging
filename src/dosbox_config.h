@@ -41,6 +41,7 @@
 #define SUPPORT_XINPUT2 0
 #define C_OPUS 0
 #define C_FLUIDSYNTH 0
+#define C_SHOWPIC 0
 
 #define C_COREAUDIO 1
 #define C_COREMIDI 1
