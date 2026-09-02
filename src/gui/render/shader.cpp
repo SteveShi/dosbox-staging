@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText:  2026-2026 The DOSBox Staging Team
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "dosbox_config.h"
 #include "private/shader.h"
 
 #if C_OPENGL
