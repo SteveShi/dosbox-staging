@@ -2272,6 +2272,21 @@ void MixerChannel::AddSamples_m8(const int num_frames, const uint8_t* data)
 	AddSamples<uint8_t, false, false, true>(num_frames, data);
 }
 
+void MixerChannel::AddSamples_s8(const int num_frames, const uint8_t* data)
+{
+	AddSamples<uint8_t, true, false, true>(num_frames, data);
+}
+
+void MixerChannel::AddSamples_m8s(const int num_frames, const int8_t* data)
+{
+	AddSamples<int8_t, false, true, true>(num_frames, data);
+}
+
+void MixerChannel::AddSamples_s8s(const int num_frames, const int8_t* data)
+{
+	AddSamples<int8_t, true, true, true>(num_frames, data);
+}
+
 void MixerChannel::AddSamples_m16(const int num_frames, const int16_t* data)
 {
 	AddSamples<int16_t, false, true, true>(num_frames, data);
@@ -2280,6 +2295,16 @@ void MixerChannel::AddSamples_m16(const int num_frames, const int16_t* data)
 void MixerChannel::AddSamples_s16(const int num_frames, const int16_t* data)
 {
 	AddSamples<int16_t, true, true, true>(num_frames, data);
+}
+
+void MixerChannel::AddSamples_m16u(const int num_frames, const uint16_t* data)
+{
+	AddSamples<uint16_t, false, false, true>(num_frames, data);
+}
+
+void MixerChannel::AddSamples_s16u(const int num_frames, const uint16_t* data)
+{
+	AddSamples<uint16_t, true, false, true>(num_frames, data);
 }
 
 void MixerChannel::AddSamples_mfloat(const int num_frames, const float* data)
