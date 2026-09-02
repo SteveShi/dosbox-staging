@@ -19,6 +19,7 @@ jobs:
   pvs_studio_analyzer:
     name: PVS-Studio static analyzer
     runs-on: ubuntu-22.04
+    if: github.repository == 'dosbox-staging/dosbox-staging'
 
     steps:
       - name: Check out repository

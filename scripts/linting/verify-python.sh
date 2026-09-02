@@ -13,6 +13,7 @@ set -e
 
 list_python_files () {
 	git ls-files \
+		| grep -v '^subprojects/' \
 		| xargs file \
 		| grep "Python script" \
 		| cut -d ':' -f 1
