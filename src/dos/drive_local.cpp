@@ -584,10 +584,13 @@ bool localFile::Read(uint8_t* data, uint16_t* num_bytes)
 	// access noises
 	DiskNoises* disk_noises = DiskNoises::GetInstance();
 	if (disk_noises != nullptr) {
-		disk_noises->SetLastIoPath(path,
-		                           DiskNoiseIoType::Read,
-		                           DOS_GetDiskTypeFromMediaByte(
-		                                   local_drive.lock()->GetMediaByte()));
+		const auto drive = local_drive.lock();
+		if (drive) {
+			disk_noises->SetLastIoPath(path,
+			                           DiskNoiseIoType::Read,
+			                           DOS_GetDiskTypeFromMediaByte(
+			                                   drive->GetMediaByte()));
+		}
 	}
 
 	const auto ret = read_native_file(file_handle, data, *num_bytes);
@@ -636,10 +639,13 @@ bool localFile::Write(uint8_t* data, uint16_t* num_bytes)
 	// access noises
 	DiskNoises* disk_noises = DiskNoises::GetInstance();
 	if (disk_noises != nullptr) {
-		disk_noises->SetLastIoPath(path,
-		                           DiskNoiseIoType::Write,
-		                           DOS_GetDiskTypeFromMediaByte(
-		                                   local_drive.lock()->GetMediaByte()));
+		const auto drive = local_drive.lock();
+		if (drive) {
+			disk_noises->SetLastIoPath(path,
+			                           DiskNoiseIoType::Write,
+			                           DOS_GetDiskTypeFromMediaByte(
+			                                   drive->GetMediaByte()));
+		}
 	}
 
 	// Otherwise we have some data to write
