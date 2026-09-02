@@ -8,6 +8,10 @@
 #include "private/mouse_interfaces.h"
 #include "private/mouse_manymouse.h"
 
+#if defined(BOXER) || defined(BOXER_DEBUG)
+#include "BXCoalface.h"
+#endif
+
 #include <algorithm>
 #include <cctype>
 #include <sstream>
@@ -253,6 +257,13 @@ static void update_state() // updates whole 'state' structure, except cursor vis
 		                    state.capture_was_requested;
 	}
 
+#if defined(BOXER) || defined(BOXER_DEBUG)
+	state.is_window_active = true;
+	state.should_drop_events = false;
+	state.is_captured = boxer_isMouseCaptured();
+	state.is_seamless = !state.is_captured;
+#endif
+
 #if defined(WIN32)
 	// Disable raw mouse input if:
 	// - this is a Windows build, and
@@ -395,14 +406,22 @@ static void update_state() // updates whole 'state' structure, except cursor vis
 
 static bool should_drop_move()
 {
+#if defined(BOXER) || defined(BOXER_DEBUG)
+	return false;
+#else
 	return state.should_drop_events ||
 	       (state.cursor_is_outside && !state.is_seamless);
+#endif
 }
 
 static bool should_drop_press_or_wheel()
 {
+#if defined(BOXER) || defined(BOXER_DEBUG)
+	return false;
+#else
 	return state.should_drop_events ||
 	       state.cursor_is_outside;
+#endif
 }
 
 void MOUSE_UpdateGFX()
@@ -413,7 +432,11 @@ void MOUSE_UpdateGFX()
 
 bool MOUSE_IsCaptured()
 {
+#if defined(BOXER) || defined(BOXER_DEBUG)
+	return boxer_isMouseCaptured();
+#else
 	return state.is_captured;
+#endif
 }
 
 bool MOUSE_IsRawInput()

@@ -4,6 +4,7 @@
 
 #include "dos/dos_system.h"
 #include "shell/shell.h"
+#include "BXCoalface.h"
 
 #include <algorithm>
 #include <cassert>
@@ -227,6 +228,10 @@ void DOS_Shell::DoCommand(char* line)
 	}
 	*cmd_write = 0;
 	if (is_empty(cmd_buffer)) {
+		return;
+	}
+
+	if (!boxer_shellShouldRunCommand(this, cmd_buffer, line)) {
 		return;
 	}
 

@@ -40,7 +40,7 @@ public:
 	BatchFile& operator=(const BatchFile&) = delete;
 	BatchFile(BatchFile&&)                 = delete;
 	BatchFile& operator=(BatchFile&&)      = delete;
-	~BatchFile()                           = default;
+	~BatchFile();
 
 	bool ReadLine(char* line);
 	bool Goto(std::string_view label);
@@ -56,6 +56,7 @@ private:
 	CommandLine cmd;
 	std::unique_ptr<LineReader> reader;
 	bool echo;
+	std::string filename;
 };
 
 class AutoexecEditor;

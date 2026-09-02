@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "shell/shell.h"
+#include "BXCoalface.h"
 
 #include <algorithm>
 #include <cstring>
@@ -122,12 +123,34 @@ std::string DOS_Shell::ReadCommand()
 
 		bool viewing_tab_completions = false;
 
+		boxer_shellWillReadCommandInputFromHandle(this, input_handle);
+
 		while (!DOS_ReadFile(input_handle, &data, &byte_count)) {
 			uint16_t dummy = 1;
 			DOS_CloseFile(input_handle);
 			DOS_OpenFile("con", 2, &dummy);
 			LOG(LOG_MISC, LOG_ERROR)
 			("Reopening the input handle. This is a bug!");
+		}
+
+		boxer_shellDidReadCommandInputFromHandle(this, input_handle);
+
+		if (!boxer_shellShouldContinue(this)) {
+			break;
+		}
+
+		bool executeImmediately = false;
+		char cmd_buf[CMD_MAXLINE] = {0};
+		std::strncpy(cmd_buf, command.c_str(), CMD_MAXLINE);
+		Bitu cursor_pos_bitu = cursor_position;
+		if (boxer_handleShellCommandInput(this, cmd_buf, &cursor_pos_bitu, &executeImmediately)) {
+			command = cmd_buf;
+			cursor_position = cursor_pos_bitu;
+			if (executeImmediately) {
+				prompt.Update(command, cursor_position);
+				prompt.Newline();
+				return command;
+			}
 		}
 
 		if (byte_count == 0) {
@@ -511,6 +534,7 @@ bool DOS_Shell::ExecuteProgram(std::string_view name, std::string_view args)
 		}
 
 		if (auto reader = FileReader::GetFileReader(fullname)) {
+			boxer_shellWillBeginBatchFile(this, fullname.c_str(), std::string(args).c_str());
 			batchfiles.emplace(*psp,
 			                   std::move(reader),
 			                   name,
@@ -524,7 +548,9 @@ bool DOS_Shell::ExecuteProgram(std::string_view name, std::string_view args)
 	}
 
 	if (iequals(extension, ".COM") || iequals(extension, ".EXE")) {
+		boxer_shellWillExecuteFileAtDOSPath(this, fullname.c_str(), std::string(args).c_str());
 		run_binary_executable(fullname, args);
+		boxer_shellDidExecuteFileAtDOSPath(this, fullname.c_str());
 		return true;
 	}
 

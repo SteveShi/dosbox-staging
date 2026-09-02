@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "shell/shell.h"
+#include "BXCoalface.h"
 
 #include <cstdarg>
 #include <cstdlib>
@@ -426,6 +427,7 @@ static bool is_shell_running = false;
 
 void DOS_Shell::Run()
 {
+	boxer_shellWillStart(this);
 	// COMMAND.COM's /C and /INIT spawn sub-commands. When parsing help, we need
 	// to be sure the /? and -? are intended for us and not part of the
 	// sub-command.
@@ -433,6 +435,7 @@ void DOS_Shell::Run()
 		MoreOutputStrings output(*this);
 		output.AddString(MSG_Get("SHELL_CMD_COMMAND_HELP_LONG"));
 		output.Display();
+		boxer_shellDidFinish(this);
 		return;
 	}
 	char input_line[CMD_MAXLINE] = {0};
@@ -445,10 +448,12 @@ void DOS_Shell::Run()
 		temp.echo = echo;
 		temp.ParseLine(input_line);
 		temp.RunBatchFile();
+		boxer_shellDidFinish(this);
 		return;
 	}
 	/* Start a normal shell and check for a first command init */
 	if (cmd->FindString("/INIT",line,true)) {
+		boxer_shellWillStartAutoexec(this);
 		const bool wants_welcome_banner = control->GetStartupVerbosity() >=
 		                                  StartupVerbosity::High;
 		if (wants_welcome_banner) {
@@ -480,18 +485,23 @@ void DOS_Shell::Run()
 
 	is_shell_running = true;
 
-	while (!exit_cmd_called && !DOSBOX_IsShutdownRequested()) {
-
-		if (!batchfiles.empty()) {
+	while (!exit_cmd_called && !DOSBOX_IsShutdownRequested() && boxer_shellShouldContinue(this)) {
+		if (boxer_hasPendingCommandsForShell(this)) {
+			boxer_executeNextPendingCommandForShell(this);
+		} else if (!batchfiles.empty()) {
 			RunBatchFile();
 		} else {
+			boxer_didReturnToShell(this);
 			if (echo) {
 				ShowPrompt();
 			}
 			InputCommand(input_line);
-			ParseLine(input_line);
+			if (boxer_shellShouldContinue(this) && !boxer_hasPendingCommandsForShell(this)) {
+				ParseLine(input_line);
+			}
 		}
 	}
+	boxer_shellDidFinish(this);
 }
 
 bool SHELL_IsRunning()

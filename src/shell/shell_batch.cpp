@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "shell/shell.h"
+#include "BXCoalface.h"
 
 #include <algorithm>
 #include <cstring>
@@ -17,8 +18,14 @@ BatchFile::BatchFile(const Environment& host, std::unique_ptr<LineReader> input_
         : shell(host),
           cmd(entered_name, cmd_line),
           reader(std::move(input_reader)),
-          echo(echo_on)
+          echo(echo_on),
+          filename(entered_name)
 {}
+
+BatchFile::~BatchFile()
+{
+	boxer_shellDidEndBatchFile(const_cast<DOS_Shell*>(dynamic_cast<const DOS_Shell*>(&shell)), filename.c_str());
+}
 
 bool BatchFile::ReadLine(char* lineout)
 {

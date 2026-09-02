@@ -8,6 +8,10 @@
 #include "private/mouse_interfaces.h"
 #include "private/mouseif_dos_driver_state.h"
 
+#if defined(BOXER) || defined(BOXER_DEBUG)
+#include "BXCoalface.h"
+#endif
+
 #include <algorithm>
 
 #include "cpu/callback.h"
@@ -1720,6 +1724,9 @@ static bool is_known_oem_function()
 
 static Bitu int33_handler()
 {
+#if defined(BOXER) || defined(BOXER_DEBUG)
+	boxer_setMouseActive(true);
+#endif
 	maybe_disable_wheel_api();
 
 	using namespace bit::literals;
@@ -1776,6 +1783,12 @@ static Bitu int33_handler()
 			}
 			limit_coordinates();
 			draw_cursor();
+#if defined(BOXER) || defined(BOXER_DEBUG)
+			if (mouse_shared.resolution_x > 0 && mouse_shared.resolution_y > 0) {
+				boxer_mouseMovedToPoint(get_pos_x() / static_cast<float>(mouse_shared.resolution_x),
+				                       get_pos_y() / static_cast<float>(mouse_shared.resolution_y));
+			}
+#endif
 			break;
 		}
 	case 0x05: {
@@ -2845,6 +2858,9 @@ bool MOUSEDOS_StartDriver(const bool force_low_memory)
 
 void MOUSEDOS_Init()
 {
+#if defined(BOXER) || defined(BOXER_DEBUG)
+	boxer_setMouseActive(true);
+#endif
 	prepare_driver_info();
 
 	// Allocate callbacks
