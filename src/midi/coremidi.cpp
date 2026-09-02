@@ -10,6 +10,7 @@
 
 #include "dos/programs.h"
 #include "utils/string_utils.h"
+#include "BXCoalfaceAudio.h"
 
 MidiDeviceCoreMidi::MidiDeviceCoreMidi(const char* conf)
         : MidiDevice(),
@@ -18,6 +19,8 @@ MidiDeviceCoreMidi::MidiDeviceCoreMidi(const char* conf)
           m_endpoint(0),
           m_pCurPacket(nullptr)
 {
+	boxer_suggestMIDIHandler("coremidi", conf ? conf : "");
+
 	// Get the MIDIEndPoint
 	m_endpoint = 0;
 
@@ -107,44 +110,52 @@ MidiDeviceCoreMidi::~MidiDeviceCoreMidi()
 
 void MidiDeviceCoreMidi::SendMidiMessage(const MidiMessage& msg)
 {
-	// Acquire a MIDIPacketList
-	Byte packetBuf[128];
-	MIDIPacketList* packetList = (MIDIPacketList*)packetBuf;
+	boxer_sendMIDIMessage(const_cast<uint8_t*>(msg.data.data()));
 
-	m_pCurPacket = MIDIPacketListInit(packetList);
+	if (m_port && m_endpoint) {
+		// Acquire a MIDIPacketList
+		Byte packetBuf[128];
+		MIDIPacketList* packetList = (MIDIPacketList*)packetBuf;
 
-	const auto len = MIDI_message_len_by_status[msg.status()];
+		m_pCurPacket = MIDIPacketListInit(packetList);
 
-	// Add msg to the MIDIPacketList
-	MIDIPacketListAdd(packetList,
-	                  (ByteCount)sizeof(packetBuf),
-	                  m_pCurPacket,
-	                  (MIDITimeStamp)0,
-	                  len,
-	                  msg.data.data());
+		const auto len = MIDI_message_len_by_status[msg.status()];
 
-	// Send the MIDIPacketList
-	MIDISend(m_port, m_endpoint, packetList);
+		// Add msg to the MIDIPacketList
+		MIDIPacketListAdd(packetList,
+		                  (ByteCount)sizeof(packetBuf),
+		                  m_pCurPacket,
+		                  (MIDITimeStamp)0,
+		                  len,
+		                  msg.data.data());
+
+		// Send the MIDIPacketList
+		MIDISend(m_port, m_endpoint, packetList);
+	}
 }
 
 void MidiDeviceCoreMidi::SendSysExMessage(uint8_t* sysex, size_t len)
 {
-	// Acquire a MIDIPacketList
-	Byte packetBuf[MaxMidiSysExBytes * 4];
-	MIDIPacketList* packetList = (MIDIPacketList*)packetBuf;
+	boxer_sendMIDISysex(sysex, len);
 
-	m_pCurPacket = MIDIPacketListInit(packetList);
+	if (m_port && m_endpoint) {
+		// Acquire a MIDIPacketList
+		Byte packetBuf[MaxMidiSysExBytes * 4];
+		MIDIPacketList* packetList = (MIDIPacketList*)packetBuf;
 
-	// Add msg to the MIDIPacketList
-	MIDIPacketListAdd(packetList,
-	                  (ByteCount)sizeof(packetBuf),
-	                  m_pCurPacket,
-	                  (MIDITimeStamp)0,
-	                  len,
-	                  sysex);
+		m_pCurPacket = MIDIPacketListInit(packetList);
 
-	// Send the MIDIPacketList
-	MIDISend(m_port, m_endpoint, packetList);
+		// Add msg to the MIDIPacketList
+		MIDIPacketListAdd(packetList,
+		                  (ByteCount)sizeof(packetBuf),
+		                  m_pCurPacket,
+		                  (MIDITimeStamp)0,
+		                  len,
+		                  sysex);
+
+		// Send the MIDIPacketList
+		MIDISend(m_port, m_endpoint, packetList);
+	}
 }
 
 void COREMIDI_ListDevices([[maybe_unused]] MidiDeviceCoreMidi* device,
