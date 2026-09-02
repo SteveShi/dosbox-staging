@@ -54,7 +54,7 @@ jobs:
       - name: Build release
         run: |
           set -xo pipefail
-          cmake -DOPT_DOCUMENTATION=ON --preset release-macos-arm64
+          cmake -DOPT_DOCUMENTATION=OFF --preset release-macos-arm64
           cmake --build --preset release-macos-arm64 2>&1 | tee build.log
 
       - name: Run tests
