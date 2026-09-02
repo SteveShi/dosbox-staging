@@ -291,4 +291,21 @@ struct ImageInfo {
 	}
 };
 
+#ifndef GFX_CALLBACK_DEFINED
+#define GFX_CALLBACK_DEFINED
+typedef enum {
+	GFX_CallbackReset,
+	GFX_CallbackStop,
+	GFX_CallbackRedraw
+} GFX_CallbackFunctions_t;
+
+typedef void (*GFX_Callback_t)(GFX_CallbackFunctions_t function);
+
+typedef GFX_Callback_t GFX_CallBack_t;
+typedef GFX_CallbackFunctions_t GFX_CallBackFunctions_t;
+#define GFX_CallBackReset GFX_CallbackReset
+#define GFX_CallBackStop GFX_CallbackStop
+#define GFX_CallBackRedraw GFX_CallbackRedraw
+#endif
+
 #endif // DOSBOX_VIDEO_H

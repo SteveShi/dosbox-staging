@@ -17,6 +17,8 @@ constexpr uint8_t GFX_CAN_15     = 1 << 1;
 constexpr uint8_t GFX_CAN_16     = 1 << 2;
 constexpr uint8_t GFX_CAN_32     = 1 << 3;
 
+#ifndef GFX_CALLBACK_DEFINED
+#define GFX_CALLBACK_DEFINED
 typedef enum {
 	GFX_CallbackReset,
 	GFX_CallbackStop,
@@ -24,6 +26,13 @@ typedef enum {
 } GFX_CallbackFunctions_t;
 
 typedef void (*GFX_Callback_t)(GFX_CallbackFunctions_t function);
+
+typedef GFX_Callback_t GFX_CallBack_t;
+typedef GFX_CallbackFunctions_t GFX_CallBackFunctions_t;
+#define GFX_CallBackReset GFX_CallbackReset
+#define GFX_CallBackStop GFX_CallbackStop
+#define GFX_CallBackRedraw GFX_CallbackRedraw
+#endif
 
 // TODO We should improve this interface over time (e.g., remove the GFX_
 // prefix, move the functions to more appropriate places, like the renderer,
