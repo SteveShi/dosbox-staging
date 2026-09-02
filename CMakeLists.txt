@@ -512,10 +512,10 @@ if (OPT_DOCUMENTATION)
 endif()
 
 include_directories(
+  ${CMAKE_CURRENT_BINARY_DIR}/include
   include
   src
   src/libs
-  ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 add_library(libdosboxcommon STATIC)
