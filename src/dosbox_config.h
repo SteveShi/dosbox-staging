@@ -10,14 +10,26 @@
 #define DOSBOX_DOSBOX_CONFIG_H
 
 #define DOSBOX_VERSION "0.83.0"
+#define DOSBOX_VERSION_SHORT "0.83"
 #define BUILD_GIT_HASH "boxer-v0.83.0"
 
 #define MACOSX 1
 
+#if defined(__aarch64__) || defined(__arm64__)
 #define C_TARGETCPU ARMV8LE
+#define C_TARGET_CPU_ARM 1
+#define C_TARGET_CPU_X86 0
+#define C_DYNREC 1
+#define C_DYNAMIC_X86 0
+#elif defined(__x86_64__) || defined(_M_X64)
+#define C_TARGETCPU X86_64
+#define C_TARGET_CPU_ARM 0
+#define C_TARGET_CPU_X86 1
+#define C_DYNREC 0
+#define C_DYNAMIC_X86 1
+#endif
 #define C_UNALIGNED_MEMORY 1
 #define C_PER_PAGE_W_OR_X 1
-#define C_DYNREC 1
 #define C_FPU 1
 #define C_CORE_INLINE 1
 
@@ -27,6 +39,8 @@
 #define C_MT32EMU 0
 #define C_MANYMOUSE 0
 #define SUPPORT_XINPUT2 0
+#define C_OPUS 0
+#define C_FLUIDSYNTH 0
 
 #define C_COREAUDIO 1
 #define C_COREMIDI 1
