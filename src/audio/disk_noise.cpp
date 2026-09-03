@@ -613,11 +613,19 @@ static void init_disknoise_config_settings(SectionProp& secprop)
 	        "      `DISKNOISE` mixer channel.");
 }
 
+static void notify_disknoise_setting_updated([[maybe_unused]] SectionProp& section,
+                                             [[maybe_unused]] const std::string& prop_name)
+{
+	DISKNOISE_Destroy();
+	DISKNOISE_Init();
+}
+
 void DISKNOISE_AddConfigSection(const ConfigPtr& conf)
 {
 	assert(conf);
 
 	auto section = conf->AddSection("disknoise");
+	section->AddUpdateHandler(notify_disknoise_setting_updated);
 
 	init_disknoise_config_settings(*section);
 }

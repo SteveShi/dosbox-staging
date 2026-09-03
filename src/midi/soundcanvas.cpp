@@ -295,6 +295,10 @@ static std::deque<std_fs::path> get_platform_rom_dirs()
 static std::deque<std_fs::path> get_platform_rom_dirs()
 {
 	return {
+#if defined(BOXER) || defined(BOXER_DEBUG)
+	        resolve_home("~/Library/Application Support/Boxer/Sound Canvas ROMs"),
+	        resolve_home("~/Library/Application Support/Boxer/soundcanvas-roms"),
+#endif
 	        get_config_dir() / DefaultSoundCanvasRomsDir,
 	};
 }
