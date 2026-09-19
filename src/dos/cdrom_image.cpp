@@ -397,7 +397,7 @@ bool CDROM_Interface_Image::AudioFile::read(uint8_t *buffer,
 #ifdef DEBUG
 		clock::time_point end = clock::now(); // stop the timer
 		const int32_t elapsed_us = static_cast<int32_t>
-		    (duration_cast<microseconds>(end - begin).count());
+		    (duration_cast<std::chrono::microseconds>(end - begin).count());
 		LOG_MSG("CDROM: converted %u mono to %u samples in %d us",
 		         mono_samples, mono_samples * REDBOOK_CHANNELS, elapsed_us);
 #endif
@@ -532,7 +532,7 @@ bool CDROM_Interface_Image::GetUPC(unsigned char& attr, std::string& upc)
 	attr = 0;
 	upc = mcn;
 #ifdef DEBUG
-	LOG_MSG("CDROM: GetUPC => returned %s", upc);
+	LOG_MSG("CDROM: GetUPC => returned %s", upc.c_str());
 #endif
 	return true;
 }
@@ -788,7 +788,7 @@ bool CDROM_Interface_Image::PlayAudioSector(uint32_t start, uint32_t len)
 		        track->start,
 		        track->start + track->length,
 		        player.totalTrackFrames,
-		        track_rate);
+		        track->file->getRate());
 	} else {
 		LOG_MSG("CDROM: Play sector %u to %u in track %d [start %u, end %u],"
 		        " for %u PCM frames at rate %u",
@@ -798,7 +798,7 @@ bool CDROM_Interface_Image::PlayAudioSector(uint32_t start, uint32_t len)
 		        track->start,
 		        track->start + track->length,
 		        player.totalTrackFrames,
-		        track_rate);
+		        track->file->getRate());
 	}
 #endif
 
